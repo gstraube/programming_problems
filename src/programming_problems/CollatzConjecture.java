@@ -3,6 +3,10 @@ package programming_problems;
 import java.io.PrintWriter;
 import java.util.Scanner;
 
+/*
+ * http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=3&page=show_problem&problem=36
+ */
+
 public class CollatzConjecture {
 
 	static final int ARRAY_SIZE = 1000000;
