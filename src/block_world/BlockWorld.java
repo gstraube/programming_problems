@@ -23,7 +23,7 @@ public class BlockWorld {
     }
 
     public BlockWorld(int numberOfBlockPositions) {
-        this.blockPositions = new ArrayList[numberOfBlockPositions];
+        this.blockPositions = new List[numberOfBlockPositions];
         this.blockToPosition = new int[numberOfBlockPositions];
         for (int i = 0; i < numberOfBlockPositions; i++) {
             blockPositions[i] = new ArrayList<>();
