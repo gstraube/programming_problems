@@ -5,9 +5,9 @@ import java.util.*;
 public class BlockWorld {
 
     private List<Integer>[] blockPositions;
-    private Map<Integer, Integer> blockToPosition;
+    private int[] blockToPosition;
 
-    private enum Command {MOVE_ONTO, MOVE_OVER, PILE_ONTO, PILE_OVER};
+    private enum Command {MOVE_ONTO, MOVE_OVER, PILE_ONTO, PILE_OVER}
 
     private static final Map<String, Map<String, Command>> rawInputToCommand = new HashMap<>();
 
@@ -25,18 +25,18 @@ public class BlockWorld {
 
     public BlockWorld(int numberOfBlockPositions) {
         this.blockPositions = new ArrayList[numberOfBlockPositions];
-        this.blockToPosition = new HashMap<Integer, Integer>();
+        this.blockToPosition = new int[numberOfBlockPositions];
         for (int i = 0; i < numberOfBlockPositions; i++) {
-            blockPositions[i] = new ArrayList<Integer>();;
+            blockPositions[i] = new ArrayList<>();
             blockPositions[i].add(i);
-            blockToPosition.put(i, i);
+            blockToPosition[i] = i;
         }
 
     }
 
     private void executeCommand(int topBlockNumber, int bottomBlockNumber, Command command) {
-        int topBlockPosition = this.blockToPosition.get(topBlockNumber);
-        int bottomBlockPosition = this.blockToPosition.get(bottomBlockNumber);
+        int topBlockPosition = this.blockToPosition[topBlockNumber];
+        int bottomBlockPosition = this.blockToPosition[bottomBlockNumber];
 
         if (commandIsValid(topBlockNumber, bottomBlockNumber, topBlockPosition, bottomBlockPosition)) {
             switch (command) {
@@ -55,7 +55,7 @@ public class BlockWorld {
         returnBlocksOnTopToOriginalPosition(bottomBlockNumber);
 
         this.blockPositions[bottomBlockPosition].add(topBlockNumber);
-        this.blockToPosition.put(topBlockNumber, bottomBlockPosition);
+        this.blockToPosition[topBlockNumber] = bottomBlockPosition;
 
         //We need an Integer here instead of an int because otherwise the remove(int index) method
         //is called instead of the remove(Object o) method.
@@ -68,7 +68,7 @@ public class BlockWorld {
     }
 
     private void returnBlocksOnTopToOriginalPosition(int blockNumber) {
-        int blockPosition = this.blockToPosition.get(blockNumber);
+        int blockPosition = this.blockToPosition[blockNumber];
         List<Integer> blocksInPosition = this.blockPositions[blockPosition];
         int indexOfTopBlock = this.blockPositions[blockPosition].indexOf(blockNumber);
 
