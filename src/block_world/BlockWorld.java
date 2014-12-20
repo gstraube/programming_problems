@@ -35,13 +35,16 @@ public class BlockWorld {
     }
 
     private void executeCommand(int topBlockNumber, int bottomBlockNumber, Command command) {
-        int topBlockPosition = this.blockToPosition[topBlockNumber];
-        int bottomBlockPosition = this.blockToPosition[bottomBlockNumber];
+        CommandInformation cmdInfo = new CommandInformation();
+        cmdInfo.topBlockNumber = topBlockNumber;
+        cmdInfo.bottomBlockNumber = bottomBlockNumber;
+        cmdInfo.topBlockPosition = this.blockToPosition[topBlockNumber];
+        cmdInfo.bottomBlockPosition = this.blockToPosition[bottomBlockNumber];
 
-        if (commandIsValid(topBlockNumber, bottomBlockNumber, topBlockPosition, bottomBlockPosition)) {
+        if (commandIsValid(cmdInfo)) {
             switch (command) {
                 case MOVE_ONTO:
-                    this.moveOnto(topBlockNumber, topBlockPosition, bottomBlockNumber, bottomBlockPosition);
+                    this.moveOnto(cmdInfo);
                     break;
                 default:
                     break;
@@ -50,21 +53,21 @@ public class BlockWorld {
 
     }
 
-    private void moveOnto(int topBlockNumber, int topBlockPosition, int bottomBlockNumber, int bottomBlockPosition) {
-        returnBlocksOnTopToOriginalPosition(topBlockNumber);
-        returnBlocksOnTopToOriginalPosition(bottomBlockNumber);
+    private void moveOnto(CommandInformation cmdInfo) {
+        returnBlocksOnTopToOriginalPosition(cmdInfo.topBlockNumber);
+        returnBlocksOnTopToOriginalPosition(cmdInfo.bottomBlockNumber);
 
-        this.blockPositions[bottomBlockPosition].add(topBlockNumber);
-        this.blockToPosition[topBlockNumber] = bottomBlockPosition;
+        this.blockPositions[cmdInfo.bottomBlockPosition].add(cmdInfo.topBlockNumber);
+        this.blockToPosition[cmdInfo.topBlockNumber] = cmdInfo.bottomBlockPosition;
 
         //We need an Integer here instead of an int because otherwise the remove(int index) method
         //is called instead of the remove(Object o) method.
-        this.blockPositions[topBlockPosition].remove(new Integer(topBlockNumber));
+        this.blockPositions[cmdInfo.topBlockPosition].remove(new Integer(cmdInfo.topBlockNumber));
     }
 
-    private boolean commandIsValid(int topBlockNumber, int bottomBlockNumber,
-                                   int topBlockPosition, int bottomBlockPosition) {
-        return topBlockNumber != bottomBlockNumber && topBlockPosition != bottomBlockPosition;
+    private boolean commandIsValid(CommandInformation cmdInfo) {
+        return cmdInfo.topBlockNumber != cmdInfo.bottomBlockNumber
+                && cmdInfo.topBlockPosition != cmdInfo.bottomBlockPosition;
     }
 
     private void returnBlocksOnTopToOriginalPosition(int blockNumber) {
@@ -97,6 +100,11 @@ public class BlockWorld {
         return output.toString();
     }
 
+    private class CommandInformation {
+        int topBlockNumber, bottomBlockNumber;
+        int topBlockPosition, bottomBlockPosition;
+    }
+
     public static void main(String[] args) {
         BlockWorld blockWorld = new BlockWorld(10);
 
@@ -105,5 +113,6 @@ public class BlockWorld {
 
         System.out.println(blockWorld);
     }
+
 }
 
