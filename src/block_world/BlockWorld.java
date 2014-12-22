@@ -3,13 +3,15 @@ package block_world;
 import java.io.PrintWriter;
 import java.util.*;
 
-public class BlockWorld {
+class BlockWorld {
 
-    private List<Integer>[] blockPositions;
+    private List<Block>[] blockPositions;
     private int[] blockToPosition;
-    private enum Command {MOVE_ONTO, MOVE_OVER, PILE_ONTO, PILE_OVER}
+    private Block[] numberToBlock;
 
-    private static final Map<String, Map<String, Command>> rawInputToCommand = new HashMap<>();
+    public enum Command {MOVE_ONTO, MOVE_OVER, PILE_ONTO, PILE_OVER}
+
+    public static final Map<String, Map<String, Command>> rawInputToCommand = new HashMap<>();
 
     static {
         Map<String, Command> mapForMove = new HashMap<>();
@@ -26,15 +28,21 @@ public class BlockWorld {
     public BlockWorld(int numberOfBlockPositions) {
         this.blockPositions = new List[numberOfBlockPositions];
         this.blockToPosition = new int[numberOfBlockPositions];
+        this.numberToBlock = new Block[numberOfBlockPositions];
         for (int i = 0; i < numberOfBlockPositions; i++) {
+            Block newBlock = new Block(i);
+
+            numberToBlock[i] = newBlock;
+
             blockPositions[i] = new ArrayList<>();
-            blockPositions[i].add(i);
+            blockPositions[i].add(newBlock);
+
             blockToPosition[i] = i;
         }
 
     }
 
-    private void executeCommand(int topBlockNumber, int bottomBlockNumber, Command command) {
+    public void executeCommand(int topBlockNumber, int bottomBlockNumber, Command command) {
         CommandInformation cmdInfo = new CommandInformation();
         cmdInfo.topBlockNumber = topBlockNumber;
         cmdInfo.bottomBlockNumber = bottomBlockNumber;
@@ -82,21 +90,24 @@ public class BlockWorld {
     }
 
     private void placeSingleBlock(CommandInformation cmdInfo) {
-        this.blockPositions[cmdInfo.bottomBlockPosition].add(cmdInfo.topBlockNumber);
+        Block block = this.numberToBlock[cmdInfo.topBlockNumber];
+
+        this.blockPositions[cmdInfo.bottomBlockPosition].add(block);
         this.blockToPosition[cmdInfo.topBlockNumber] = cmdInfo.bottomBlockPosition;
 
-        //We need an Integer here instead of an int because otherwise the remove(int index) method
-        //is called instead of the remove(Object o) method.
-        this.blockPositions[cmdInfo.topBlockPosition].remove(new Integer(cmdInfo.topBlockNumber));
+        this.blockPositions[cmdInfo.topBlockPosition].remove(block);
     }
 
     private void placeStackOfBlocks(CommandInformation cmdInfo) {
-        List<Integer> blocksInPositionOfTopBlock = this.blockPositions[cmdInfo.topBlockPosition];
-        int indexOfTopBlock = blocksInPositionOfTopBlock.indexOf(cmdInfo.topBlockNumber);
-        List<Integer> stackOfBlocksToBePiled = this.getPileOfBlocks(blocksInPositionOfTopBlock, indexOfTopBlock);
+        Block topBlock = this.numberToBlock[cmdInfo.topBlockNumber];
 
-        for (Integer blockToBePiled : stackOfBlocksToBePiled) {
-            this.blockToPosition[blockToBePiled] = cmdInfo.bottomBlockPosition;
+        List<Block> blocksInPositionOfTopBlock = this.blockPositions[cmdInfo.topBlockPosition];
+        int indexOfTopBlock = blocksInPositionOfTopBlock.indexOf(topBlock);
+
+        List<Block> stackOfBlocksToBePiled = this.getPileOfBlocks(blocksInPositionOfTopBlock, indexOfTopBlock);
+
+        for (Block blockToBePiled : stackOfBlocksToBePiled) {
+            this.blockToPosition[blockToBePiled.blockNumber] = cmdInfo.bottomBlockPosition;
         }
 
         blocksInPositionOfTopBlock.removeAll(stackOfBlocksToBePiled);
@@ -109,19 +120,23 @@ public class BlockWorld {
     }
 
     private void returnBlocksOnTopToOriginalPosition(int blockNumber) {
+        Block topBlock = numberToBlock[blockNumber];
+
         int blockPosition = this.blockToPosition[blockNumber];
-        List<Integer> blocksInPosition = this.blockPositions[blockPosition];
-        int indexOfTopBlock = blocksInPosition.indexOf(blockNumber);
+        List<Block> blocksInPosition = this.blockPositions[blockPosition];
+        int indexOfTopBlock = blocksInPosition.indexOf(topBlock);
 
-        List<Integer> blocksOnTop = getPileOfBlocks(blocksInPosition, indexOfTopBlock + 1);
+        List<Block> blocksOnTop = getPileOfBlocks(blocksInPosition, indexOfTopBlock + 1);
 
-        for (Integer blockOnTop : blocksOnTop) {
-            blocksInPosition.remove(blockOnTop);
-            this.blockPositions[blockOnTop].add(blockOnTop);
+        blocksInPosition.removeAll(blocksOnTop);
+
+        for (Block blockOnTop : blocksOnTop) {
+            this.blockPositions[blockOnTop.blockNumber].add(blockOnTop);
+            this.blockToPosition[blockOnTop.blockNumber] = blockOnTop.blockNumber;
         }
     }
 
-    private List<Integer> getPileOfBlocks(List<Integer> blocksInPosition, int indexOfStartingBlock) {
+    private List<Block> getPileOfBlocks(List<Block> blocksInPosition, int indexOfStartingBlock) {
         return new ArrayList<>(blocksInPosition.subList(indexOfStartingBlock, blocksInPosition.size()));
     }
 
@@ -130,8 +145,8 @@ public class BlockWorld {
         StringBuilder output = new StringBuilder();
         for (int i = 0; i < this.blockPositions.length; i++) {
             output.append(i).append(":");
-            for (Integer blockNumber : this.blockPositions[i]) {
-                output.append(" ").append(blockNumber);
+            for (Block block : this.blockPositions[i]) {
+                output.append(" ").append(block.blockNumber);
             }
             if (i < this.blockPositions.length - 1) {
                 output.append("\n");
@@ -144,6 +159,19 @@ public class BlockWorld {
         int topBlockNumber, bottomBlockNumber;
         int topBlockPosition, bottomBlockPosition;
     }
+
+    private class Block {
+
+        int blockNumber;
+
+        public Block(int blockNumber) {
+            this.blockNumber = blockNumber;
+        }
+    }
+
+}
+
+class Main {
 
     public static void main(String[] args) {
         Scanner in = new Scanner(System.in);
@@ -159,7 +187,7 @@ public class BlockWorld {
         while (!line.equalsIgnoreCase("quit")) {
             String[] inputElements = line.split("\\s+");
 
-            Command cmd = BlockWorld.rawInputToCommand.get(inputElements[0]).get(inputElements[2]);
+            BlockWorld.Command cmd = BlockWorld.rawInputToCommand.get(inputElements[0]).get(inputElements[2]);
             int topBlockNumber = Integer.parseInt(inputElements[1]);
             int bottomBlockNumber = Integer.parseInt(inputElements[3]);
 
