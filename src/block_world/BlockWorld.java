@@ -3,6 +3,10 @@ package block_world;
 import java.io.PrintWriter;
 import java.util.*;
 
+/*
+    http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=37
+ */
+
 class BlockWorld {
 
     private List<Block>[] blockPositions;
