@@ -148,9 +148,7 @@ class BlockWorld {
             for (Block block : this.blockPositions[i]) {
                 output.append(" ").append(block.blockNumber);
             }
-            if (i < this.blockPositions.length - 1) {
-                output.append("\n");
-            }
+            output.append("\n");
         }
         return output.toString();
     }
