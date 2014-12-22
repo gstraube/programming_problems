@@ -1,5 +1,6 @@
 package block_world;
 
+import java.io.PrintWriter;
 import java.util.*;
 
 public class BlockWorld {
@@ -132,7 +133,9 @@ public class BlockWorld {
             for (Integer blockNumber : this.blockPositions[i]) {
                 output.append(" ").append(blockNumber);
             }
-            output.append(" | ");
+            if (i < this.blockPositions.length - 1) {
+                output.append("\n");
+            }
         }
         return output.toString();
     }
@@ -143,18 +146,27 @@ public class BlockWorld {
     }
 
     public static void main(String[] args) {
-        BlockWorld blockWorld = new BlockWorld(10);
+        Scanner in = new Scanner(System.in);
+        PrintWriter out = new PrintWriter(System.out, true);
 
-        blockWorld.executeCommand(9, 1, Command.MOVE_ONTO);
-        blockWorld.executeCommand(8, 1, Command.MOVE_OVER);
-        blockWorld.executeCommand(7, 1, Command.MOVE_OVER);
-        blockWorld.executeCommand(6, 1, Command.MOVE_OVER);
-        blockWorld.executeCommand(8, 6, Command.PILE_OVER);
-        blockWorld.executeCommand(8, 5, Command.PILE_OVER);
-        blockWorld.executeCommand(2, 1, Command.MOVE_OVER);
-        blockWorld.executeCommand(4, 9, Command.MOVE_OVER);
+        int numberOfBlocks = in.nextInt();
+        in.nextLine();
 
-        System.out.println(blockWorld);
+        BlockWorld blockWorld = new BlockWorld(numberOfBlocks);
+
+        String line = in.nextLine();
+
+        while (!line.equalsIgnoreCase("quit")) {
+            String[] inputElements = line.split("\\s+");
+
+            Command cmd = BlockWorld.rawInputToCommand.get(inputElements[0]).get(inputElements[2]);
+            int topBlockNumber = Integer.parseInt(inputElements[1]);
+            int bottomBlockNumber = Integer.parseInt(inputElements[3]);
+
+            blockWorld.executeCommand(topBlockNumber, bottomBlockNumber, cmd);
+            line = in.nextLine();
+        }
+        out.printf(blockWorld.toString());
     }
 
 }
