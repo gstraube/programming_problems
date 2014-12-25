@@ -3,6 +3,10 @@ package programming_problems;
 import java.io.PrintWriter;
 import java.util.Scanner;
 
+/*
+    http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=3&page=show_problem&problem=38
+ */
+
 class EcologicalBinPacking {
 
     static String[] binPermutations = {"BCG", "BGC", "CBG", "CGB", "GBC", "GCB"};
