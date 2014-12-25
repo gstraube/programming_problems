@@ -7,6 +7,13 @@ import static java.util.Collections.sort;
 
 class StackingBoxes {
 
+    /*
+        TODO
+        We need to consider all nesting strings for a given starting box, i.e.
+        successively select all boxes into which the starting box can be nested
+        and calculate the nesting string from there.
+     */
+
     static final Comparator<Box> BOX_COMPARATOR = new Comparator<Box>() {
 
         @Override
