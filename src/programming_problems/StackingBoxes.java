@@ -1,7 +1,5 @@
 package programming_problems;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.*;
 
@@ -13,8 +11,8 @@ class StackingBoxes {
 
         @Override
         public int compare(Box box1, Box box2) {
-            int product1 = 1;
-            int product2 = 1;
+            long product1 = 1;
+            long product2 = 1;
 
             //Both boxes share the same number of dimensions
             for (int i = 0; i < box1.measurements.length; i++) {
@@ -22,20 +20,35 @@ class StackingBoxes {
                 product2 *= box2.measurements[i];
             }
 
-            return Integer.compare(product1, product2);
+            return Long.compare(product1, product2);
         }
     };
 
     private List<Box> longestStringOfBoxes = new ArrayList<>();
 
+    private List<Box> boxes = new ArrayList<>();
+
     public void addBox(Box box) {
         this.boxes.add(box);
     }
 
-    private List<Box> boxes = new ArrayList<>();
+    public void findLongestNestingString() {
+        int maxLength = 0;
+
+        this.sortBoxes();
+
+        for (int i = 0; i < this.boxes.size(); i++) {
+            List<Box> stringOfBoxes = this.getNestingStringStartingFromBoxIndex(i);
+            int stringOfBoxesLength = stringOfBoxes.size();
+            if (stringOfBoxesLength > maxLength) {
+                this.longestStringOfBoxes = stringOfBoxes;
+                maxLength = stringOfBoxesLength;
+            }
+        }
+    }
 
     public String boxesInLongestString() {
-        StringBuffer out = new StringBuffer();
+        StringBuilder out = new StringBuilder();
 
         for (int i = 0; i < this.longestStringOfBoxes.size(); i++) {
             out.append(this.longestStringOfBoxes.get(i).index);
@@ -62,21 +75,6 @@ class StackingBoxes {
             }
         }
         return true;
-    }
-
-    public void findLongestNestingString() {
-        int maxLength = 0;
-
-        this.sortBoxes();
-
-        for (int i = 0; i < this.boxes.size(); i++) {
-            List<Box> stringOfBoxes = this.getNestingStringStartingFromBoxIndex(i);
-            int stringOfBoxesLength = stringOfBoxes.size();
-            if (stringOfBoxesLength > maxLength) {
-                this.longestStringOfBoxes = stringOfBoxes;
-                maxLength = stringOfBoxesLength;
-            }
-        }
     }
 
     private List<Box> getNestingStringStartingFromBoxIndex(int startBoxIndex) {
@@ -116,25 +114,19 @@ class Box {
 
     @Override
     public String toString() {
-        StringBuffer out = new StringBuffer();
-        for (int i = 0; i < this.measurements.length; i++) {
-            out.append(this.measurements[i]);
+        StringBuilder out = new StringBuilder();
+        for (Integer measurement : this.measurements) {
+            out.append(measurement);
             out.append(" ");
         }
         return out.toString();
     }
-
 }
 
 class SBMain {
 
     public static void main(String[] args) {
-        Scanner in = null;
-        try {
-            in = new Scanner(new File("in.txt"));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        Scanner in = new Scanner(System.in);
         PrintWriter out = new PrintWriter(System.out, true);
 
         while (in.hasNextLine()) {
