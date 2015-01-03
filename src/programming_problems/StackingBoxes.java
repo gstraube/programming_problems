@@ -5,6 +5,10 @@ import java.util.*;
 
 import static java.util.Collections.sort;
 
+/*
+    http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=3&page=show_problem&problem=39
+ */
+
 class StackingBoxes {
 
     static final Comparator<Box> BOX_COMPARATOR = new Comparator<Box>() {
