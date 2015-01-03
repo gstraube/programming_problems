@@ -7,27 +7,25 @@ import static java.util.Collections.sort;
 
 class StackingBoxes {
 
-    /*
-        TODO
-        We need to consider all nesting strings for a given starting box, i.e.
-        successively select all boxes into which the starting box can be nested
-        and calculate the nesting string from there.
-     */
-
     static final Comparator<Box> BOX_COMPARATOR = new Comparator<Box>() {
 
         @Override
         public int compare(Box box1, Box box2) {
-            long product1 = 1;
-            long product2 = 1;
+            final int LESS_THAN = -1;
+            final int GREATER = 1;
+            final int EQUAL = 0;
 
             //Both boxes share the same number of dimensions
             for (int i = 0; i < box1.measurements.length; i++) {
-                product1 *= box1.measurements[i];
-                product2 *= box2.measurements[i];
+                if (box1.measurements[i] > box2.measurements[i]) {
+                    return GREATER;
+                } else if (box1.measurements[i] < box2.measurements[i]) {
+                    return LESS_THAN;
+                }
+
             }
 
-            return Long.compare(product1, product2);
+            return EQUAL;
         }
     };
 
@@ -40,18 +38,45 @@ class StackingBoxes {
     }
 
     public void findLongestNestingString() {
-        int maxLength = 0;
+        int numberOfBoxes = this.boxes.size();
+
+        int maxLength = 1;
+        int endOfLongestNestingString = 0;
+        int[] lengthOfStringAtIndex = new int[numberOfBoxes];
+        int[] indicesOfLongestString = new int[numberOfBoxes];
 
         this.sortBoxes();
 
-        for (int i = 0; i < this.boxes.size(); i++) {
-            List<Box> stringOfBoxes = this.getNestingStringStartingFromBoxIndex(i);
-            int stringOfBoxesLength = stringOfBoxes.size();
-            if (stringOfBoxesLength > maxLength) {
-                this.longestStringOfBoxes = stringOfBoxes;
-                maxLength = stringOfBoxesLength;
+        lengthOfStringAtIndex[0] = 1;
+        indicesOfLongestString[0] = -1;
+
+        for (int i = 0; i < numberOfBoxes; i++) {
+
+            lengthOfStringAtIndex[i] = 1;
+            indicesOfLongestString[i] = -1;
+
+            for (int j = i - 1; j >= 0; j--) {
+                boolean canPreviousBoxBeNested = this.canBoxBeNested(this.boxes.get(j), this.boxes.get(i));
+                if (canPreviousBoxBeNested && (lengthOfStringAtIndex[j] + 1 > lengthOfStringAtIndex[i])) {
+                    lengthOfStringAtIndex[i] = lengthOfStringAtIndex[j] + 1;
+                    indicesOfLongestString[i] = j;
+                }
             }
+
+            if (lengthOfStringAtIndex[i] > maxLength) {
+                endOfLongestNestingString = i;
+                maxLength = lengthOfStringAtIndex[i];
+            }
+
         }
+
+        int index = endOfLongestNestingString;
+        while (index != -1) {
+            this.longestStringOfBoxes.add(this.boxes.get(index));
+            index = indicesOfLongestString[index];
+        }
+
+        Collections.reverse(this.longestStringOfBoxes);
     }
 
     public String boxesInLongestString() {
@@ -84,30 +109,6 @@ class StackingBoxes {
         return true;
     }
 
-    private List<Box> getNestingStringStartingFromBoxIndex(int startBoxIndex) {
-        int currentBoxIndex = startBoxIndex;
-        int nextBoxIndex = startBoxIndex + 1;
-
-        List<Box> stringOfBoxes = new ArrayList<>();
-
-        stringOfBoxes.add(this.boxes.get(currentBoxIndex));
-
-        while (nextBoxIndex < this.boxes.size()) {
-            Box currentBox = this.boxes.get(currentBoxIndex);
-            Box nextBox = this.boxes.get(nextBoxIndex);
-            Arrays.sort(currentBox.measurements);
-            Arrays.sort(nextBox.measurements);
-
-            if (this.canBoxBeNested(currentBox, nextBox)) {
-                stringOfBoxes.add(nextBox);
-                currentBoxIndex = nextBoxIndex;
-            }
-            nextBoxIndex++;
-        }
-
-        return stringOfBoxes;
-    }
-
 }
 
 class Box {
@@ -117,16 +118,6 @@ class Box {
 
     public Box(int numberOfDimensions) {
         this.measurements = new int[numberOfDimensions];
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder out = new StringBuilder();
-        for (Integer measurement : this.measurements) {
-            out.append(measurement);
-            out.append(" ");
-        }
-        return out.toString();
     }
 }
 
@@ -157,6 +148,8 @@ class SBMain {
                 for (int j = 0; j < numberOfDimensions; j++) {
                     box.measurements[j] = Integer.parseInt(boxMeasurements[j]);
                 }
+
+                Arrays.sort(box.measurements);
 
                 stackingBoxes.addBox(box);
             }
