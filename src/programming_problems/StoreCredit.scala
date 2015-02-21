@@ -1,10 +1,27 @@
+import scala.io.Source._
+
 /*
  * https://code.google.com/codejam/contest/351101/dashboard#s=p0
  */
 
 object StoreCredit {
 
-  def readInput(): Seq[Int] = Vector(150, 24, 79, 50, 88, 345, 3)
+  def readInput(fileName: String): Seq[(Int, Seq[Int])] = {
+    val lines = fromFile(fileName).getLines()
+
+    val numberOfTestCases = lines.next().toInt
+
+    var testCases = scala.collection.mutable.MutableList[(Int, Seq[Int])]()
+
+    for (i <- 0 to numberOfTestCases - 1) {
+      val storeCredit = lines.next().toInt
+      lines.next() // Number of items
+      val items = lines.next().split("\\s+").map(_.toInt)
+      testCases += Tuple2(storeCredit, items)
+    }
+
+    testCases
+  }
 
   def findItems(items: Seq[Int], targetSum: Int): (Int, Int) = {
     val sortedItems = items.sortWith(_ < _)
@@ -62,9 +79,11 @@ object StoreCredit {
   }
 
   def main(args: Array[String]) {
-    val items = readInput()
-    val (firstItem, secondItem) = findItems(items, 200)
-    println(firstItem, secondItem)
+    val testCases = readInput(args(0))
+    for ((storeCredit, items) <- testCases) {
+      val (firstItem, secondItem) = findItems(items, storeCredit)
+      println(firstItem, secondItem)
+    }
   }
 
 }
