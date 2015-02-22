@@ -15,9 +15,15 @@ object StoreCredit {
 
     for (i <- 0 to numberOfTestCases - 1) {
       val storeCredit = lines.next().toInt
-      lines.next() // Number of items
-      val items = lines.next().split("\\s+").map(_.toInt)
-      testCases += Tuple2(storeCredit, items)
+      val numberOfItems = lines.next().toInt
+
+      var remainingItemsToBeRead = numberOfItems
+      while (remainingItemsToBeRead != 0) {
+        val items = lines.next().split("\\s+").map(_.toInt)
+        testCases += Tuple2(storeCredit, items)
+        remainingItemsToBeRead = remainingItemsToBeRead - items.size
+      }
+
     }
 
     testCases
