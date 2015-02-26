@@ -32,44 +32,34 @@ object StoreCredit {
   def findItems(items: Seq[Int], targetSum: Int): (Int, Int) = {
     val sortedItems = items.sortWith(_ < _)
 
-    var foundSecondItem = false
-
-    var firstItemIndex = Math.floor(sortedItems.size.toDouble / 2.0).toInt
+    var firstItemIndex = Math.floor(sortedItems.size.toDouble / 2.0).toInt + 1
     var firstItem = sortedItems(firstItemIndex)
 
-    var secondItem = firstItem
+    var secondItem = -1
 
-    while (!foundSecondItem) {
+    while (secondItem == -1) {
 
       firstItem = sortedItems(firstItemIndex)
       val difference = targetSum - firstItem
-
-      val (foundItem, item) = findSecondItem(sortedItems, difference)
-
-      foundSecondItem = foundItem
-      secondItem = item
-
       firstItemIndex = firstItemIndex - 1
+
+      secondItem = findSecondItem(sortedItems, difference)
     }
 
     (firstItem, secondItem)
   }
 
-  def findSecondItem(items: Seq[Int], difference: Int): (Boolean, Int) = {
+  def findSecondItem(items: Seq[Int], difference: Int): Int = {
+
+    if (items.size == 0) {
+      return -1
+    }
 
     val medianIndex = Math.floor(items.size.toDouble / 2.0).toInt
     val median = items(medianIndex)
 
-    if (items.size == 1) {
-      if (median == difference) {
-        return (true, median)
-      } else {
-        return (false, median)
-      }
-    }
-
-    if (difference == median) {
-      return (true, median)
+    if (median == difference) {
+      return median
     }
 
     var startIndex = 0
